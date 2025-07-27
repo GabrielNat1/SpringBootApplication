@@ -18,7 +18,7 @@ jobs:
 
           commits=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:%s)
 
-          pattern='^(feat|fix|chore|docs|style|refactor|perf|test)(\(.+\))?: .+'
+          pattern='^(feat|fix|chore|docs|style|refactor|perf|test|build)(\(.+\))?: .+'
 
           invalid=0
           while IFS= read -r line; do
