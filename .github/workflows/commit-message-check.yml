@@ -1,0 +1,36 @@
+name: Validate Commit Messages
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-commit-messages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check commit messages
+        run: |
+          echo "Checking commit messages..."
+
+          commits=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:%s)
+
+          pattern='^(feat|fix|chore|docs|style|refactor|perf|test)(\(.+\))?: .+'
+
+          invalid=0
+          while IFS= read -r line; do
+            if ! [[ "$line" =~ $pattern ]]; then
+              echo "Invalid commit message: $line"
+              invalid=1
+            fi
+          done <<< "$commits"
+
+          if [ $invalid -eq 1 ]; then
+            echo "::error::Some commit messages do not follow the conventional commit format."
+            exit 1
+          else
+            echo "All commit messages are valid."
+          fi
