@@ -1,6 +1,6 @@
 package com.example.spring_boot_project;
 
-import config.DotenvInitializer;
+import com.example.spring_boot_project.config.DotenvInitializer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
