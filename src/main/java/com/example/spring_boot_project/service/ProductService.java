@@ -1,5 +1,6 @@
 package com.example.spring_boot_project.service;
 
+import com.example.spring_boot_project.exceptions.ResourceNotFound;
 import com.example.spring_boot_project.model.Product;
 import com.example.spring_boot_project.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,10 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Product not found with id: " + id));
+
     }
 
     public Product saveProduct(Product product) {
@@ -28,6 +31,9 @@ public class ProductService {
     }
 
     public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new ResourceNotFound("Product not found with id: " + id);
+        }
         productRepository.deleteById(id);
     }
 
