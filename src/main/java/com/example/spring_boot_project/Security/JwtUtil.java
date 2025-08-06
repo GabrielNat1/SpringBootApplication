@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class JwtUtil {
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION_TIME = 86400000; // 1 day
+    private static final long EXPIRATION_TIME = 86400000;
 
     public static String generateToken(String username){
         return Jwts.builder()
@@ -21,13 +21,13 @@ public class JwtUtil {
     }
 
     public static String extractUsername(String token){
-        return Jwts.parserBuilder().setSigningKey(key).build()
+        return Jwts.parser().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
     public static boolean isTokenValid(String token){
         try{
-            Jwts.parserBuilder().setSigningKey(key).build()
+            Jwts.parser().setSigningKey(key).build()
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException e){
