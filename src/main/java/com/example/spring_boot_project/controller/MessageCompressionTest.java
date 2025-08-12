@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/compression")
+@RequestMapping("/api")
 public class MessageCompressionTest {
-    @GetMapping
+    @GetMapping("/compression")
     public String helloCompression(){
         return "test";
     }
