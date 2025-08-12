@@ -27,10 +27,10 @@ Each part of the course is explained in its own markdown file:
 - 🟢 [**05_data_persistence.md**](docs/05_data_persistence.md): Data persistence with Spring Data JPA  
 - 🟢 [**06_postgres_config.md**](docs/06_postgres_config.md): PostgreSQL setup  
 - 🟢 [**07_product_api.md**](docs/07_product_api.md): Creating the Product API  
-- 🟡 [**08_exception_handling.md**](docs/08_exception_handling.md): Exception handling in Spring Boot  
-- 🔴 [**09_global_exceptions.md**](docs/09_global_exceptions.md): Global exception handling  
-- 🔴 [**10_security_jwt.md**](docs/10_security_jwt.md): Authentication & Security with Spring Security and JWT  
-- 🔴 [**11_user_auth_routes.md**](docs/11_user_auth_routes.md): User authentication and route protection  
+- 🟢 [**08_exception_handling.md**](docs/08_exception_handling.md): Exception handling in Spring Boot  
+- 🟢 [**09_global_exceptions.md**](docs/09_global_exceptions.md): Global exception handling  
+- 🟢 [**10_security_jwt.md**](docs/10_security_jwt.md): Authentication & Security with Spring Security and JWT  
+- 🟢 [**11_user_auth_routes.md**](docs/11_user_auth_routes.md): User authentication and route protection  
 
 ## 🚀 Technologies Used
 
