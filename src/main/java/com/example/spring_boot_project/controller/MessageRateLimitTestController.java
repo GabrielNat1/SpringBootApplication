@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/compression")
-public class MessageCompressionTest {
-    @GetMapping
-    public String helloCompression(){
-        return "test";
+@RequestMapping("/api")
+public class MessageRateLimitTestController {
+    @GetMapping("/testController")
+    public String helloLimitTest(){
+        return "hello rate limit";
     }
 }
