@@ -1,0 +1,26 @@
+<configuration>
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} - %msg%n"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} - [IP: %X{clientIp}] [Método: %X{method}] [Rota: %X{uri}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/access-log.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} - [IP: %X{clientIp}] [Método: %X{method}] [Rota: %X{uri}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

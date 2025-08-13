@@ -2,6 +2,7 @@ package com.example.spring_boot_project.service;
 
 import com.example.spring_boot_project.model.Cart;
 import com.example.spring_boot_project.model.CartItem;
+import com.example.spring_boot_project.model.Product;
 import com.example.spring_boot_project.repository.CartItemRepository;
 import com.example.spring_boot_project.repository.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
