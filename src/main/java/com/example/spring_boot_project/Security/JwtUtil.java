@@ -1,43 +1,50 @@
 package com.example.spring_boot_project.Security;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET_KEY = "your-256-bit-secret";
-    private static final long EXPIRATION_TIME = 864_000_000; // 10 days
-    private static final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    @Value("${jwt.secret}")
+    private String secret;
 
-    public static String generateToken(String username) {
+    private SecretKey secretKey;
+    private static final long EXPIRATION_TIME = 864_000_000; // 10 days
+
+    @PostConstruct
+    public void init() {
+        // bytes UTF-8
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String generateToken(String username) {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key)
+                .signWith(secretKey)
                 .compact();
     }
 
-    public static String extractUsername(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
+    public String extractUsername(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload();
-        return claims.getSubject();
+                .getPayload()
+                .getSubject();
     }
 
-    public static boolean validateToken(String token) {
+    public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token);
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
             return true;
         } catch (Exception e) {
             return false;

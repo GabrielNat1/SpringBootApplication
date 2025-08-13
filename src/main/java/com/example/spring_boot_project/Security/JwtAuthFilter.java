@@ -16,9 +16,11 @@ import org.springframework.lang.NonNull;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
+    private final JwtUtil jwtUtil;
     private final UserService userService;
 
-    public JwtAuthFilter(UserService userService) {
+    public JwtAuthFilter(JwtUtil jwtUtil, UserService userService) {
+        this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
     @Override
@@ -30,10 +32,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String username = JwtUtil.extractUsername(token);
+        String username = jwtUtil.extractUsername(token);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = userService.loadUserByUsername(username);
-            if (JwtUtil.validateToken(token)){
+            if (jwtUtil.validateToken(token)){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

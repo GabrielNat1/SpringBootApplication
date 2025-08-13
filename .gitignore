@@ -36,3 +36,8 @@ build/
 .logs/access-log.log
 
 .database.db
+database.db
+logs/access-log.log
+logs/
+*.log
+logs/access-log.log

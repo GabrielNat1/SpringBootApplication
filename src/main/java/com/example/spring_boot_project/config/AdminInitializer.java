@@ -18,15 +18,34 @@ public class AdminInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.findByUsername("admin").isEmpty()) {
-            User admin = new User();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setRole("ADMIN");
-            userRepository.save(admin);
-            System.out.println("Admin user created successfully");
-        } else {
-            System.out.println("Admin user already exists");
+        String tempAdminUsername = System.getenv("ADMIN_USERNAME");
+        if (tempAdminUsername == null) {
+            tempAdminUsername = System.getProperty("ADMIN_USERNAME");
         }
+
+        String tempAdminPassword = System.getenv("ADMIN_PASSWORD");
+        if (tempAdminPassword == null) {
+            tempAdminPassword = System.getProperty("ADMIN_PASSWORD");
+        }
+
+        if (tempAdminUsername == null || tempAdminPassword == null) {
+            System.err.println("⚠️ ADMIN_USERNAME and ADMIN_PASSWORD are not set. Admin will not be created.");
+            return;
+        }
+
+        final String adminUsername = tempAdminUsername;
+        final String adminPassword = tempAdminPassword;
+
+        userRepository.findByUsername(adminUsername).ifPresentOrElse(
+            user -> System.out.println("Admin user already exists"),
+            () -> {
+                User admin = new User();
+                admin.setUsername(adminUsername);
+                admin.setPassword(passwordEncoder.encode(adminPassword));
+                admin.setRole("ADMIN");
+                userRepository.save(admin);
+                System.out.println("✅ Admin user created successfully");
+            }
+        );
     }
 }

@@ -2,7 +2,6 @@ package com.example.spring_boot_project.Security;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -26,7 +25,9 @@ public class RateLimitingFilter implements Filter {
     private Bucket createNewBucket() {
         // limit to 10 requests per minute
         Bandwidth limit = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
-        return Bucket4j.builder().addLimit(limit).build();
+        return Bucket.builder()
+                .addLimit(limit)
+                .build();
     }
 
     @Override

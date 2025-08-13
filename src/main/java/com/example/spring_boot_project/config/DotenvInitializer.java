@@ -1,32 +1,25 @@
 package com.example.spring_boot_project.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import io.github.cdimascio.dotenv.DotenvException;
-import jakarta.annotation.PostConstruct;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
 
-@Configuration
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class DotenvInitializer {
-    private static Dotenv dotenv;
+import java.util.HashMap;
+import java.util.Map;
 
-    @PostConstruct
-    public void init() {
-        try {
-            dotenv = Dotenv.configure()
-                    .ignoreIfMissing()
-                    .load();
-            
-            System.setProperty("ADMIN_PASSWORD", dotenv.get("ADMIN_PASSWORD"));
-            System.out.println("Dotenv loaded - Admin password configured");
-        } catch (DotenvException e) {
-            throw new RuntimeException("Error loading .env file", e);
-        }
-    }
+public class DotenvInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    public static String getEnvValue(String key) {
-        return dotenv.get(key);
+    @Override
+    public void initialize(@org.springframework.lang.NonNull ConfigurableApplicationContext applicationContext) {
+        Dotenv dotenv = Dotenv.load();
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        
+        Map<String, Object> envMap = new HashMap<>();
+        dotenv.entries().forEach(entry -> envMap.put(entry.getKey(), entry.getValue()));
+        
+        MapPropertySource propertySource = new MapPropertySource("dotenvProperties", envMap);
+        environment.getPropertySources().addFirst(propertySource);
     }
 }

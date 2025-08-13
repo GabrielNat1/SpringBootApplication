@@ -17,10 +17,12 @@ import java.util.Optional;
 public class AuthController {
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(UserService userService, BCryptPasswordEncoder passwordEncoder) {
+    public AuthController(UserService userService, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
@@ -50,7 +52,7 @@ public class AuthController {
         if (userOptional.isPresent() &&
                 passwordEncoder.matches(rawPassword, userOptional.get().getPassword())) {
 
-            String token = JwtUtil.generateToken(userOptional.get().getUsername());
+            String token = jwtUtil.generateToken(userOptional.get().getUsername());
             return ResponseEntity.ok(Map.of("token", token));
         }
 
