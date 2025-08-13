@@ -2,29 +2,46 @@ package com.example.spring_boot_project.service;
 
 import com.example.spring_boot_project.model.User;
 import com.example.spring_boot_project.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class UserService {
+@Primary
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public User registerUser(String username, String password) {
-        String PasswordCrypted = passwordEncoder.encode(password);
-        User user = new User(username, PasswordCrypted);
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getUsername())
+                .password(user.getPassword())
+                .roles(user.getRole().replace("ROLE_", ""))
+                .build();
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public User registerUser(String username, String encodedPassword) {
+        User user = new User(username, encodedPassword, "ROLE_USER");
         return userRepository.save(user);
     }
 
-    public Optional<User> findByUsername(String username){
-        return userRepository.findByUsername(username);
+    public User save(User user) {
+        return userRepository.save(user);
     }
 }
+

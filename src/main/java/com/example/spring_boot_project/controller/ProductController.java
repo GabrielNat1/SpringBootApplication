@@ -1,9 +1,7 @@
 package com.example.spring_boot_project.controller;
 
-import com.example.spring_boot_project.exceptions.ResourceNotFound;
 import com.example.spring_boot_project.model.Product;
 import com.example.spring_boot_project.service.ProductService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +33,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id){
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
