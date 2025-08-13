@@ -19,7 +19,6 @@ public class DotenvInitializer {
                     .ignoreIfMissing()
                     .load();
             
-            // Seta a variável de ambiente programaticamente
             System.setProperty("ADMIN_PASSWORD", dotenv.get("ADMIN_PASSWORD"));
             System.out.println("Dotenv loaded - Admin password configured");
         } catch (DotenvException e) {

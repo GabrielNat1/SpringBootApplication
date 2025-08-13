@@ -10,8 +10,9 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION_TIME = 86400000; // 1 day
+    private static final String SECRET_KEY = "your-256-bit-secret";
+    private static final long EXPIRATION_TIME = 864_000_000; // 10 days
+    private static final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     public static String generateToken(String username) {
         return Jwts.builder()
@@ -22,15 +23,21 @@ public class JwtUtil {
                 .compact();
     }
 
-    public static String extractUsername(String token){
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().getSubject();
+    public static String extractUsername(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getSubject();
     }
 
-    public static boolean isTokenValid(String token){
-        try{
-            Jwts.parserBuilder().setSigningKey(key).build()
-                    .parseClaimsJws(token);
+    public static boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token);
             return true;
         } catch (Exception e) {
             return false;
