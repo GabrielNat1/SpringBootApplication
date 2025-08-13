@@ -1,0 +1,37 @@
+2025-08-13 11:14:55 - [IP: ] [Método: ] [Rota: ] - Starting SpringBootProjectApplication using Java 22.0.2 with PID 2188 (C:\githubprojects\SpringBootApplicationCourse\target\classes started by aluno in C:\githubprojects\SpringBootApplicationCourse)
+2025-08-13 11:14:55 - [IP: ] [Método: ] [Rota: ] - No active profile set, falling back to 1 default profile: "default"
+2025-08-13 11:14:55 - [IP: ] [Método: ] [Rota: ] - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-08-13 11:14:55 - [IP: ] [Método: ] [Rota: ] - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-08-13 11:14:55 - [IP: ] [Método: ] [Rota: ] - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-08-13 11:14:55 - [IP: ] [Método: ] [Rota: ] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Finished Spring Data repository scanning in 107 ms. Found 4 JPA repository interfaces.
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.example.spring_boot_project.repository.CartItemRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.example.spring_boot_project.repository.CartRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.example.spring_boot_project.repository.ProductRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.example.spring_boot_project.repository.UserRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Finished Spring Data repository scanning in 5 ms. Found 0 Redis repository interfaces.
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Unable to start web server
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-08-13 11:14:56 - [IP: ] [Método: ] [Rota: ] - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Failed to bind properties under 'server.compression.min-response-size' to org.springframework.util.unit.DataSize:
+
+    Property: server.compression.min-response-size
+    Value: "${SERVER-COMPRESSION-SIZE}"
+    Origin: class path resource [application.properties] - 14:38
+    Reason: failed to convert java.lang.String to org.springframework.util.unit.DataSize (caused by java.lang.IllegalStateException: '${SERVER-COMPRESSION-SIZE}' does not match data size pattern)
+
+Action:
+
+Update your application's configuration
+

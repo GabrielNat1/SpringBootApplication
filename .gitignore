@@ -33,5 +33,6 @@ build/
 .vscode/
 
 .env
+.logs/access-log.log
 
 .database.db
