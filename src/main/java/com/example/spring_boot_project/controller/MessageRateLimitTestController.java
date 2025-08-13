@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-public class MessageCompressionTest {
-    @GetMapping("/compression")
-    public String helloCompression(){
-        return "test";
+public class MessageRateLimitTestController {
+    @GetMapping("/testController")
+    public String helloLimitTest(){
+        return "hello rate limit";
     }
 }
