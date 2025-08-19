@@ -46,7 +46,7 @@ Each part of the course is explained in its own markdown file:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/springbootapplicationcourse.git
+   git clone https://github.com/GabrielNat1/springbootapplicationcourse.git
    cd springbootapplicationcourse
    ```
    
