@@ -1,8 +1,9 @@
 name: Validate Commit Messages
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
 
 jobs:
   check-commit-messages:
@@ -14,16 +15,16 @@ jobs:
 
       - name: Check commit messages
         run: |
-          echo "Checking commit messages..."
+          echo "Checking commit messages on main branch..."
 
-          commits=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:%s)
+          commits=$(git log -n ${{ github.event.commits | length }} --pretty=format:%s)
 
           pattern='^(feat|fix|chore|docs|style|refactor|perf|test|build)(\(.+\))?: .+'
 
           invalid=0
           while IFS= read -r line; do
             if ! [[ "$line" =~ $pattern ]]; then
-              echo "Invalid commit message: $line"
+              echo "❌ Invalid commit message: $line"
               invalid=1
             fi
           done <<< "$commits"
@@ -32,5 +33,5 @@ jobs:
             echo "::error::Some commit messages do not follow the conventional commit format."
             exit 1
           else
-            echo "All commit messages are valid."
+            echo "✅ All commit messages are valid."
           fi
