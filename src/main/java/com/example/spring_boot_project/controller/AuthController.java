@@ -28,14 +28,17 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
         Optional<User> existingUser = userService.findByUsername(request.getUsername());
+
         if (existingUser.isPresent()) {
             return ResponseEntity.badRequest().body("Username already exists.");
         }
+
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("USER");
         userService.save(user);
+
         return ResponseEntity.ok().body("User registered successfully");
     }
 
@@ -53,6 +56,7 @@ public class AuthController {
                 passwordEncoder.matches(rawPassword, userOptional.get().getPassword())) {
 
             String token = jwtUtil.generateToken(userOptional.get().getUsername());
+
             return ResponseEntity.ok(Map.of("token", token));
         }
 
