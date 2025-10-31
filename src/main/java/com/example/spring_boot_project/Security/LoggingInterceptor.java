@@ -19,6 +19,19 @@ public class LoggingInterceptor implements HandlerInterceptor {
     private static final String ANSI_YELLOW = "\u001B[33m";
     private static final String ANSI_CYAN = "\u001B[36m";
     private static final String ANSI_WHITE = "\u001B[37m";
+
+    /**
+     * Intercepts incoming HTTP requests before they reach the controller and logs detailed request information.
+     *
+     * This method captures metadata such as the client IP address, HTTP method, request URI,
+     * and the exact date and time of the request. The data is formatted with ANSI color codes
+     * for enhanced readability in the console logs.
+     *
+     * @param request  the {@link HttpServletRequest} containing the client's request information.
+     * @param response the {@link HttpServletResponse} that will be sent back to the client.
+     * @param handler  the chosen handler to execute, for type and/or method information.
+     * @return {@code true} to allow the request to continue to the next interceptor or controller.
+     */
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         String clientIP = getClientIp(request);
