@@ -37,14 +37,14 @@ public class AdminInitializer implements CommandLineRunner {
         final String adminPassword = tempAdminPassword;
 
         userRepository.findByUsername(adminUsername).ifPresentOrElse(
-            user -> System.out.println("Admin user already exists"),
+            user -> System.out.println(),
             () -> {
                 User admin = new User();
                 admin.setUsername(adminUsername);
                 admin.setPassword(passwordEncoder.encode(adminPassword));
                 admin.setRole("ADMIN");
                 userRepository.save(admin);
-                System.out.println("✅ Admin user created successfully");
+                //System.out.println("✅ Admin user created successfully");
             }
         );
     }

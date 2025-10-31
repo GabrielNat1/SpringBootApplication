@@ -19,6 +19,13 @@ public class SpringBootProjectApplication {
         SpringApplication.run(SpringBootProjectApplication.class, args);
     }
 
+    /**
+     * verify system property if present
+     *
+     * @param dotenv
+     * @param key
+     * @return void
+     */
     private static void setSystemPropertyIfPresent(Dotenv dotenv, String key) {
         String value = dotenv.get(key);
         if (value != null) {
