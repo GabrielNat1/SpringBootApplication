@@ -18,7 +18,7 @@ public class CaptchaUtil {
 
     public static String encodeCaptcha(Captcha c){
         try(ByteArrayOutputStream o = new ByteArrayOutputStream()){
-            ImageIO.write(c.getImage(), "jpg", o);
+            ImageIO.write(c.getImage(), "png", o);
             return Base64.getEncoder().encodeToString(o.toByteArray());
         } catch (IOException e){
             throw new RuntimeException("error encoding Captcha", e);
