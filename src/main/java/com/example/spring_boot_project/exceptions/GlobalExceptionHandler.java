@@ -32,4 +32,14 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(VpnBlockedException.class)
+    public ResponseEntity<?> handleVpnBlocked(VpnBlockedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(VpnChallengeException.class)
+    public ResponseEntity<?> handleVpnChallenge(VpnChallengeException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
 }
