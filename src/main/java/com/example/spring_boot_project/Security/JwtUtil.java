@@ -49,7 +49,6 @@ public class JwtUtil {
             // token expirado
             return null;
         } catch (JwtException e) {
-            // assinatura inválida ou outro erro de parsing
             return null;
         }
     }
