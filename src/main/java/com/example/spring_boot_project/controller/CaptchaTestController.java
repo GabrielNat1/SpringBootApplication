@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/test-captcha")
+@RequestMapping("api/v1/test-captcha")
 public class CaptchaTestController {
 
     @GetMapping
