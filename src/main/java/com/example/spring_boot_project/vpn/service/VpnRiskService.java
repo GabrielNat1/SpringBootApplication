@@ -1,5 +1,6 @@
-package com.example.spring_boot_project.vpn;
+package com.example.spring_boot_project.vpn.service;
 
+import com.example.spring_boot_project.vpn.protocol.VpnStatus;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

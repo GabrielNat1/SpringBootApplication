@@ -1,7 +1,10 @@
-package com.example.spring_boot_project.vpn;
+package com.example.spring_boot_project.vpn.filter;
 
 import com.example.spring_boot_project.exceptions.VpnBlockedException;
 import com.example.spring_boot_project.exceptions.VpnChallengeException;
+import com.example.spring_boot_project.vpn.protocol.VpnStatus;
+import com.example.spring_boot_project.vpn.service.VpnMonitorService;
+import com.example.spring_boot_project.vpn.service.VpnRiskService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

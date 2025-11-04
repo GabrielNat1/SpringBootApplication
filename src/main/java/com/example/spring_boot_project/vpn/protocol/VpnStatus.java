@@ -1,4 +1,4 @@
-package com.example.spring_boot_project.vpn;
+package com.example.spring_boot_project.vpn.protocol;
 
 public enum VpnStatus {
     SAFE,
