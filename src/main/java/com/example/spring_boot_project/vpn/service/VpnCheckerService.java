@@ -3,19 +3,25 @@ package com.example.spring_boot_project.vpn.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import reactor.core.publisher.Mono;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.*;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class VpnCheckerService {
 
+    private static final Logger log = LoggerFactory.getLogger(VpnCheckerService.class);
+
     private final RedisTemplate<String, String> redisTemplate;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final WebClient webClient;
 
     @Value("${vpn.api.url:https://ipapi.co}")
     private String vpnApiUrl;
@@ -44,8 +50,12 @@ public class VpnCheckerService {
         SUSPICIOUS_ASN_PATTERNS.add(Pattern.compile("(?i).*contabo.*"));
     }
 
-    public VpnCheckerService(RedisTemplate<String, String> redisTemplate) {
+    public VpnCheckerService(RedisTemplate<String, String> redisTemplate,
+                                @Value("${vpn.api.url:https://ipapi.co}") String apiUrl) {
         this.redisTemplate = redisTemplate;
+        this.webClient = WebClient.builder()
+                        .baseUrl(apiUrl)
+                        .build();
     }
 
     public boolean isVpn(String ip) {
@@ -54,7 +64,7 @@ public class VpnCheckerService {
             String cached = redisTemplate.opsForValue().get(cacheKey);
             if (cached != null) return Boolean.parseBoolean(cached);
         } catch (Exception e) {
-            System.err.println("Redis unavailable, continuing without cache: " + e.getMessage());
+            log.error("Redis unavailable, proceeding without cache: " + e.getMessage());
         }
 
         boolean isVpn = localCheck(ip);
@@ -64,10 +74,10 @@ public class VpnCheckerService {
 
         try {
             Duration ttl = Duration.ofHours(isVpn ? cacheTtlHours * 2L : cacheTtlHours);
-            redisTemplate.opsForValue().set(cacheKey, String.valueOf(isVpn));
-            redisTemplate.expire(cacheKey, ttl);
+            redisTemplate.opsForValue()
+                .set(cacheKey, String.valueOf(isVpn), ttl);
         } catch (Exception e) {
-            System.err.println("Redis unavailable, skipping cache: " + e.getMessage());
+            log.error("Redis unavailable, skipping cache: {}", e.getMessage());
         }
 
         return isVpn;
@@ -100,7 +110,7 @@ public class VpnCheckerService {
             }
 
         } catch (UnknownHostException e) {
-            System.err.println("Resolving IP " + ip + ": " + e.getMessage());
+            log.error("Resolving IP {}: {}", ip, e.getMessage());
         }
 
         return false;
@@ -108,22 +118,25 @@ public class VpnCheckerService {
 
     private boolean externalCheck(String ip) {
         try {
-            String url = String.format("%s/%s/json/", vpnApiUrl, ip);
-            Map<?, ?> response = restTemplate.getForObject(url, Map.class);
+            Map<?, ?> response = webClient.get()
+                    .uri("/" + ip + "/json/")
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .timeout(Duration.ofSeconds(3))
+                    .onErrorResume(e -> {
+                        log.warn("API timeout/erro: {}", e.getMessage());
+                        return Mono.empty();
+                    })
+                    .block();
 
             if (response == null) return false;
 
-            Object proxy = response.get("proxy");
-            Object hosting = response.get("hosting");
-            Object vpn = response.get("vpn");
-
-            return (toBool(proxy) || toBool(hosting) || toBool(vpn));
+            return (toBool("proxy") || toBool("hosting") || toBool("vpn"));
 
         } catch (Exception e) {
-            System.err.println("Error api: " + e.getMessage());
+            log.error("Error api: {}", e.getMessage());
+            return false;
         }
-
-        return false;
     }
 
     private boolean toBool(Object value) {
