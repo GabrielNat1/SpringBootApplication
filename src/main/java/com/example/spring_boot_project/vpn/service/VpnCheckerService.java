@@ -39,27 +39,27 @@ public class VpnCheckerService {
     private int cacheTtlHours;
 
     private static final List<String> VPN_CIDR = List.of(
-            "104.28.0.0/16",    // Cloudflare IPv4
-            "5.62.0.0/16",      // M247/OVH-ish
-            "198.18.0.0/15",    // testing range
+            "104.28.0.0/16", // Cloudflare IPv4
+            "5.62.0.0/16", // M247/OVH-ish
+            "198.18.0.0/15", // testing range
             "45.13.0.0/16",
             "15.0.0.0/8",
-            "2606:4700::/32"    // Cloudflare IPv6 (exemplo)
+            "2606:4700::/32" // Cloudflare IPv6 (exemplo)
     );
     private static final Set<String> SUSPECT_ASN = Set.of(
             "AS16509", // Amazon
             "AS15169", // Google
-            "AS9009",  // M247
+            "AS9009", // M247
             "AS14061", // DigitalOcean
             "AS13335", // Cloudflare
             "AS16276", // OVH
-            "AS51167"  // Contabo
+            "AS51167" // Contabo
     );
 
     private static final Pattern ASN_EXTRACTOR = Pattern.compile("(AS\\d+)", Pattern.CASE_INSENSITIVE);
 
     public VpnCheckerService(RedisTemplate<String, String> redisTemplate,
-                             @Value("${vpn.api.url:https://ipapi.co}") String apiUrl) {
+            @Value("${vpn.api.url:https://ipapi.co}") String apiUrl) {
 
         this.redisTemplate = redisTemplate;
         this.vpnApiUrl = apiUrl;
@@ -72,8 +72,7 @@ public class VpnCheckerService {
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .filter(ExchangeFilterFunctions.statusError(
                         status -> status.isError(),
-                        res -> new RuntimeException("API error: " + res.statusCode())
-                ))
+                        res -> new RuntimeException("API error: " + res.statusCode())))
                 .build();
     }
 
@@ -81,7 +80,8 @@ public class VpnCheckerService {
         String cacheKey = "vpn-check:" + ip;
         try {
             String cached = redisTemplate.opsForValue().get(cacheKey);
-            if (cached != null) return Boolean.parseBoolean(cached);
+            if (cached != null)
+                return Boolean.parseBoolean(cached);
         } catch (Exception e) {
             log.warn("Redis unavailable, proceeding without cache: {}", e.getMessage());
         }
@@ -109,7 +109,7 @@ public class VpnCheckerService {
      * 1. Skips private and loopback addresses.
      * 2. Checks against known VPN/hosting CIDR blocks (IPv4 & IPv6).
      * 3. Looks up ASN in Redis cache or fetches from external API.
-     *    Flags IPs from suspicious ASNs.
+     * Flags IPs from suspicious ASNs.
      * 
      * @param ip the IP address to check
      * @return true if the IP is likely a VPN, false otherwise
@@ -117,7 +117,8 @@ public class VpnCheckerService {
     private boolean localCheck(String ip) {
         try {
             InetAddress inet = InetAddress.getByName(ip);
-            if (inet.isSiteLocalAddress() || inet.isLoopbackAddress()) return false;
+            if (inet.isSiteLocalAddress() || inet.isLoopbackAddress())
+                return false;
 
             // Check CIDR list (supports IPv4 and IPv6)
             for (String cidr : VPN_CIDR) {
@@ -134,7 +135,7 @@ public class VpnCheckerService {
                 String asn = cachedAsn;
                 if (asn == null || asn.isEmpty()) {
                     // return example -> "AS15169"
-                    asn = fetchASN(ip).block(); 
+                    asn = fetchASN(ip).block();
                     if (asn != null && !asn.isEmpty()) {
                         try {
                             redisTemplate.opsForValue().set(asnCacheKey, asn, Duration.ofHours(cacheTtlHours));
@@ -165,7 +166,8 @@ public class VpnCheckerService {
                 .bodyToMono(JsonNode.class)
                 .retryWhen(Retry.backoff(2, Duration.ofMillis(300))
                         .filter(ex -> {
-                            // retry for network or server errors but not for 4xx client errors (except maybe 429)
+                            // retry for network or server errors but not for 4xx client errors (except
+                            // maybe 429)
                             if (ex instanceof WebClientResponseException) {
                                 int code = ((WebClientResponseException) ex).getStatusCode().value();
                                 return code >= 500 || code == 429; // retry 5xx and 429
@@ -192,7 +194,8 @@ public class VpnCheckerService {
     private Mono<String> fetchASN(String ip) {
         return callVpnApi(ip)
                 .map(json -> {
-                    if (json == null) return "";
+                    if (json == null)
+                        return "";
                     // ipapi sometimes returns "asn" or "org" - try both
                     String asnField = "";
                     if (json.has("asn") && !json.path("asn").isMissingNode()) {
@@ -205,7 +208,7 @@ public class VpnCheckerService {
                     if (m.find()) {
                         return m.group(1).toUpperCase();
                     }
-                  
+
                     if (asnField.matches("\\d+")) {
                         return "AS" + asnField;
                     }
@@ -217,7 +220,8 @@ public class VpnCheckerService {
     private boolean externalCheck(String ip) {
         try {
             JsonNode json = callVpnApi(ip).block();
-            if (json == null) return false;
+            if (json == null)
+                return false;
 
             return toBool(json.get("vpn"))
                     || toBool(json.get("proxy"))
@@ -247,12 +251,14 @@ public class VpnCheckerService {
     }
 
     private boolean isSuspiciousASN(String asn) {
-        if (asn == null || asn.isEmpty()) return false;
+        if (asn == null || asn.isEmpty())
+            return false;
         return SUSPECT_ASN.contains(asn.toUpperCase());
     }
 
     private boolean toBool(JsonNode node) {
-        if (node == null || node.isNull()) return false;
+        if (node == null || node.isNull())
+            return false;
         String s = node.asText("").trim().toLowerCase();
         return s.equals("true") || s.equals("1") || s.equals("yes") || s.equals("y");
     }
