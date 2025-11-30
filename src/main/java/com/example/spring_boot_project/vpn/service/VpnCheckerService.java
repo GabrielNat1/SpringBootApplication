@@ -5,6 +5,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import reactor.core.publisher.Mono;
 
 import java.net.InetAddress;
@@ -28,11 +30,11 @@ public class VpnCheckerService {
     private int cacheTtlHours;
 
     private static final List<String> VPN_CIDR = List.of(
-        "104.28.0.0/16",
-        "5.62.0.0/16",
+        "104.28.0.0/16", 
+        "5.62.0.0/16", 
         "198.18.0.0/15",
-        "45.13.0.0/16",
-        "15.0.0.0/8"
+        "45.13.0.0/16", 
+        "15.0.0.0/8" 
     );
 
     public VpnCheckerService(RedisTemplate<String, String> redisTemplate,
@@ -78,21 +80,29 @@ public class VpnCheckerService {
                 if (isInRange(ip, cidr)) return true;
             }
 
-            String asnKey = "asn:" + ip;
-            String asnName = redisTemplate.opsForValue().get(asnKey);
-
-            if (asnName == null) {
-                // Optional
-                String hostname = inet.getCanonicalHostName();
-                asnName = hostname != null ? hostname.toLowerCase() : "";
-                redisTemplate.opsForValue().set(asnKey, asnName);
-                redisTemplate.expire(asnKey, Duration.ofDays(1));
+            // Check ASN
+            String asn = redisTemplate.opsForValue().get("asn:" + ip);
+            if (asn == null) {
+                asn = fetchASN(ip).block();
+                if (asn != null && !asn.isEmpty()) {
+                    redisTemplate.opsForValue().set("asn:" + ip, asn, Duration.ofHours(cacheTtlHours));
+                }
             }
         } catch (UnknownHostException e) {
             log.error("Resolving IP {}: {}", ip, e.getMessage());
         }
 
         return false;
+    }
+
+    private Mono<String> fetchASN(String ip) {
+        return webClient.get()
+                .uri("/" + ip + "/json/")
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .map(json -> json.path("asn").asText("")) // "AS15169"
+                .timeout(Duration.ofSeconds(3))
+                .onErrorReturn("");
     }
 
     private boolean externalCheck(String ip) {
