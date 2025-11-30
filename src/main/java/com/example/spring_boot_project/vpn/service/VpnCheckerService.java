@@ -6,7 +6,7 @@ import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class VpnCheckerService {
     private static final Logger log = LoggerFactory.getLogger(VpnCheckerService.class);
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
     private final WebClient webClient;
     private final String vpnApiUrl;
 
@@ -46,6 +46,7 @@ public class VpnCheckerService {
             "15.0.0.0/8",
             "2606:4700::/32" // Cloudflare IPv6 (exemplo)
     );
+
     private static final Set<String> SUSPECT_ASN = Set.of(
             "AS16509", // Amazon
             "AS15169", // Google
@@ -58,10 +59,10 @@ public class VpnCheckerService {
 
     private static final Pattern ASN_EXTRACTOR = Pattern.compile("(AS\\d+)", Pattern.CASE_INSENSITIVE);
 
-    public VpnCheckerService(RedisTemplate<String, String> redisTemplate,
+    public VpnCheckerService(ReactiveRedisTemplate<String, String> reactiveRedisTemplate,
             @Value("${vpn.api.url:https://ipapi.co}") String apiUrl) {
 
-        this.redisTemplate = redisTemplate;
+        this.reactiveRedisTemplate = reactiveRedisTemplate;
         this.vpnApiUrl = apiUrl;
 
         HttpClient httpClient = HttpClient.create()
@@ -79,22 +80,29 @@ public class VpnCheckerService {
     public boolean isVpn(String ip) {
         String cacheKey = "vpn-check:" + ip;
         try {
-            String cached = redisTemplate.opsForValue().get(cacheKey);
-            if (cached != null)
-                return Boolean.parseBoolean(cached);
+            Boolean cachedResult = reactiveRedisTemplate.opsForValue()
+            .get(cacheKey)
+            .map(Boolean::parseBoolean)
+            .block(Duration.ofMillis(200));
+        
+            if (cachedResult != null)
+                return cachedResult;
         } catch (Exception e) {
             log.warn("Redis unavailable, proceeding without cache: {}", e.getMessage());
         }
 
         boolean isVpn = localCheck(ip);
-
         if (!isVpn) {
             isVpn = externalCheck(ip);
         }
 
         try {
+            // suported reactive caching
             Duration ttl = Duration.ofHours(isVpn ? cacheTtlHours * 2L : cacheTtlHours);
-            redisTemplate.opsForValue().set(cacheKey, String.valueOf(isVpn), ttl);
+            reactiveRedisTemplate.opsForValue()
+                    .set(cacheKey, String.valueOf(isVpn), ttl)
+                    .doOnError(e -> log.warn("Failed to cache VPN check for {}: {}", ip, e.getMessage()))
+                    .subscribe();
         } catch (Exception e) {
             log.warn("Redis unavailable, skipping cache: {}", e.getMessage());
         }
@@ -131,14 +139,14 @@ public class VpnCheckerService {
             // ASN: try cache first, then fetch once and cache (synchronous block)
             String asnCacheKey = "asn:" + ip;
             try {
-                String cachedAsn = redisTemplate.opsForValue().get(asnCacheKey);
+                String cachedAsn = reactiveRedisTemplate.opsForValue().get(asnCacheKey).block(Duration.ofSeconds(5));
                 String asn = cachedAsn;
                 if (asn == null || asn.isEmpty()) {
                     // return example -> "AS15169"
-                    asn = fetchASN(ip).block();
+                    asn = fetchASN(ip).block(Duration.ofSeconds(5));
                     if (asn != null && !asn.isEmpty()) {
                         try {
-                            redisTemplate.opsForValue().set(asnCacheKey, asn, Duration.ofHours(cacheTtlHours));
+                            reactiveRedisTemplate.opsForValue().set(asnCacheKey, asn, Duration.ofHours(cacheTtlHours));
                         } catch (Exception e) {
                             log.debug("Failed to cache ASN: {}", e.getMessage());
                         }
@@ -175,10 +183,8 @@ public class VpnCheckerService {
                             return true;
                         }))
                 .timeout(Duration.ofSeconds(3), Mono.empty())
-                .onErrorResume(e -> {
-                    log.debug("callVpnApi error for {}: {}", ip, e.getMessage());
-                    return Mono.empty();
-                });
+                .doOnError(e -> log.warn("callVpnApi timeout or error for {}: {}", ip, e.getMessage()))
+                .onErrorResume(e -> Mono.empty());
     }
 
     /**
@@ -219,7 +225,7 @@ public class VpnCheckerService {
 
     private boolean externalCheck(String ip) {
         try {
-            JsonNode json = callVpnApi(ip).block();
+            JsonNode json = callVpnApi(ip).block(Duration.ofSeconds(5));
             if (json == null)
                 return false;
 

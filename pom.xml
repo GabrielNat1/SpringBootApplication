@@ -84,9 +84,15 @@
 		</dependency>
 
 		<!-- Redis support -->
-		<dependency>
+		<!--<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>-->
+		
+		<!-- Redis Reactive support -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
 		</dependency>
 
 		<!-- Spring Data JPA for database access -->
