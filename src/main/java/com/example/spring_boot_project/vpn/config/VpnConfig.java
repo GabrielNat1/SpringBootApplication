@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class VpnConfig {
-
     @Value("${vpn.policy:MONITOR}")
     private String policy;
 

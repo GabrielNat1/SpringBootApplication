@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 @Service
 public class VpnCheckerService {
-
     private static final Logger log = LoggerFactory.getLogger(VpnCheckerService.class);
 
     private final RedisTemplate<String, String> redisTemplate;
@@ -201,7 +200,7 @@ public class VpnCheckerService {
                     } else if (json.has("org")) {
                         asnField = json.path("org").asText("");
                     }
-                    
+
                     Matcher m = ASN_EXTRACTOR.matcher(asnField);
                     if (m.find()) {
                         return m.group(1).toUpperCase();
