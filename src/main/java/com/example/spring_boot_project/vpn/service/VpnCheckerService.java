@@ -2,12 +2,17 @@ package com.example.spring_boot_project.vpn.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.util.retry.Retry;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -37,13 +42,35 @@ public class VpnCheckerService {
         "15.0.0.0/8" 
     );
 
-    public VpnCheckerService(RedisTemplate<String, String> redisTemplate,
-                                @Value("${vpn.api.url:https://ipapi.co}") String apiUrl) {
+   public VpnCheckerService(RedisTemplate<String, String> redisTemplate,
+                         @Value("${vpn.api.url:https://ipapi.co}") String apiUrl) {
+
         this.redisTemplate = redisTemplate;
         this.vpnApiUrl = apiUrl;
+
+        HttpClient httpClient = HttpClient.create()
+                .responseTimeout(Duration.ofSeconds(4));
+
         this.webClient = WebClient.builder()
-                        .baseUrl(apiUrl)
-                        .build();
+                .baseUrl(apiUrl)
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .filter(ExchangeFilterFunctions.statusError(
+                        status -> status.isError(),
+                        res -> new RuntimeException("API error: " + res.statusCode())
+                ))
+                .build();
+    }
+
+    private Mono<JsonNode> callVpnApi(String ip) {
+        return webClient.get()
+                .uri("/" + ip + "/json/")
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .retryWhen(
+                        Retry.backoff(2, Duration.ofMillis(300))
+                                .filter(ex -> !(ex instanceof WebClientResponseException.BadRequest))
+                )
+                .timeout(Duration.ofSeconds(3), Mono.empty());
     }
 
     public boolean isVpn(String ip) {
@@ -107,27 +134,22 @@ public class VpnCheckerService {
 
     private boolean externalCheck(String ip) {
         try {
-            Map<?, ?> response = webClient.get()
-                    .uri("/" + ip + "/json/")
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .timeout(Duration.ofSeconds(3))
-                    .onErrorResume(e -> {
-                        log.warn("API timeout/erro: {}", e.getMessage());
-                        return Mono.empty();
-                    })
-                    .block();
+            JsonNode json = callVpnApi(ip).block();
 
-            if (response == null) return false;
+            if (json == null) {
+                return false;
+            }
 
-            return (toBool(response.get("proxy")) || toBool(response.get("hosting")) || toBool(response.get("vpn")));
+            return toBool(json.get("proxy"))
+                    || toBool(json.get("hosting"))
+                    || toBool(json.get("vpn"));
 
         } catch (Exception e) {
             log.error("Error api: {}", e.getMessage());
             return false;
         }
     }
-
+    
     private boolean isInRange(String ip, String cidr) {
         try {
             String[] parts = cidr.split("/");
