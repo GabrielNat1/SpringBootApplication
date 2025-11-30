@@ -119,6 +119,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.github.seancfoley</groupId>
+			<artifactId>ipaddress</artifactId>
+			<version>5.4.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
