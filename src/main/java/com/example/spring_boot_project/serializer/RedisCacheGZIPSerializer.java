@@ -3,7 +3,6 @@ package com.example.spring_boot_project.serializer;
 import org.apache.commons.io.IOUtils;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
-import org.springframework.lang.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,14 +13,14 @@ import java.util.zip.GZIPOutputStream;
 public class RedisCacheGZIPSerializer extends JdkSerializationRedisSerializer {
     @Override
     public byte[] serialize(
-            @Nullable Object o
+            Object o
     ){
         return compress(super.serialize(o));
     }
 
     @Override
     public Object deserialize(
-            @Nullable byte[] bytes
+            byte[] bytes
     ){
         return super.deserialize(decompress(bytes));
     }

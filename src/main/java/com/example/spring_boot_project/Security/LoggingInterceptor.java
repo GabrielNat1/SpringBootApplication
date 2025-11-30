@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,7 +32,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
      * @return {@code true} to allow the request to continue to the next interceptor or controller.
      */
     @Override
-    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String clientIP = getClientIp(request);
         String method = request.getMethod();
         String uri = request.getRequestURI();

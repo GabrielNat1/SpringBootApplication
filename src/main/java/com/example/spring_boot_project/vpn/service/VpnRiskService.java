@@ -13,7 +13,6 @@ public class VpnRiskService {
     private final VpnCheckerService vpnCheckerService;
 
     // Thresholds
-    private final int safeThreshold = 3;
     private final int challengeThreshold = 6;
     private final int monitorThreshold = 9;
     private final int blockThreshold = 10;

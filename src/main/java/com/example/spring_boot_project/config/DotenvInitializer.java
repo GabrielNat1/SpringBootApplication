@@ -12,7 +12,7 @@ import java.util.Map;
 public class DotenvInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
-    public void initialize(@org.springframework.lang.NonNull ConfigurableApplicationContext applicationContext) {
+    public void initialize(ConfigurableApplicationContext applicationContext) {
         Dotenv dotenv = Dotenv.load();
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
         
