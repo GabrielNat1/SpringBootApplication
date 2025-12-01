@@ -1,11 +1,8 @@
 # Spring Boot Application Course
 
-[![Java](https://img.shields.io/badge/Java-17%2B-blue.svg?logo=java)](https://adoptopenjdk.net/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg?logo=spring-boot)](https://spring.io/projects/spring-boot)
-[![Maven](https://img.shields.io/badge/Maven-Build-blue.svg?logo=apache-maven)](https://maven.apache.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![CI](https://github.com/GabrielNat1/springbootapplicationcourse/actions/workflows/main.yml/badge.svg)](https://github.com/GabrielNat1/springbootapplicationcourse/actions)
-
+[![Java](https://img.shields.io/badge/Java-17%2B-007396?logo=openjdk&logoColor=white)](https://adoptopenjdk.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Maven](https://img.shields.io/badge/Maven-Build-C71A36?logo=apachemaven&logoColor=white)](https://maven.apache.org/)
 ---
 
 This repository contains a structured Spring Boot application developed step-by-step, following modern backend development practices. The project includes database integration, error handling, authentication, and user security using JWT.
