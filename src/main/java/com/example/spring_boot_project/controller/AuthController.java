@@ -1,10 +1,12 @@
 package com.example.spring_boot_project.controller;
 
 import com.example.spring_boot_project.Security.JwtUtil;
+import com.example.spring_boot_project.dto.LoginResponse;
 import com.example.spring_boot_project.dto.RegisterRequest;
 import com.example.spring_boot_project.dto.RegisterResponse;
 import com.example.spring_boot_project.model.User;
 import com.example.spring_boot_project.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,7 +43,8 @@ public class AuthController {
      *         or an error message if the username already exists.
      */
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request,
+                                          HttpServletRequest httpRequest) {
         Optional<User> existingUser = userService.findByUsername(request.getUsername());
 
         if (existingUser.isPresent()) {
@@ -52,6 +55,15 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("USER");
+
+        // IP
+        String ipAddress = httpRequest.getRemoteAddr();
+        user.setCreatedIp(ipAddress);
+
+        // (User-Agent)
+        String userAgent = httpRequest.getHeader("User-Agent");
+        user.setCreatedDevice(userAgent);
+
         User savedUser = userService.save(user);
 
         return ResponseEntity.ok(
@@ -78,10 +90,6 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> request) {
-        if (!request.containsKey("username") || !request.containsKey("password")) {
-            return ResponseEntity.badRequest().body("Username and password are required.");
-        }
-
         String username = request.get("username");
         String rawPassword = request.get("password");
 
@@ -89,9 +97,19 @@ public class AuthController {
         if (userOptional.isPresent() &&
                 passwordEncoder.matches(rawPassword, userOptional.get().getPassword())) {
 
-            String token = jwtUtil.generateToken(userOptional.get().getUsername());
+            User user = userOptional.get();
+            String token = jwtUtil.generateToken(user.getUsername());
 
-            return ResponseEntity.ok(Map.of("token", token));
+            return ResponseEntity.ok(
+                    new LoginResponse(
+                            user.getPublicId(),
+                            user.getUsername(),
+                            token,
+                            user.getCreatedIp(),
+                            user.getCreatedDevice(),
+                            user.getCreatedAt().toString()
+                    )
+            );
         }
 
         return ResponseEntity.status(401).body("Invalid username or password.");
