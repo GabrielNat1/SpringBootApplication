@@ -2,6 +2,7 @@ package com.example.spring_boot_project.controller;
 
 import com.example.spring_boot_project.Security.JwtUtil;
 import com.example.spring_boot_project.dto.RegisterRequest;
+import com.example.spring_boot_project.dto.RegisterResponse;
 import com.example.spring_boot_project.model.User;
 import com.example.spring_boot_project.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -51,9 +52,14 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("USER");
-        userService.save(user);
+        User savedUser = userService.save(user);
 
-        return ResponseEntity.ok().body("User registered successfully");
+        return ResponseEntity.ok(
+                new RegisterResponse(
+                        savedUser.getPublicId(),
+                        savedUser.getUsername()
+                )
+        );
     }
 
     /**
