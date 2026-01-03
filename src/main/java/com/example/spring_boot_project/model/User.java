@@ -1,27 +1,52 @@
 package com.example.spring_boot_project.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 public class User {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Getter
     @Column(nullable = false, unique = true, updatable = false)
     private String publicId;
 
+    @Setter
+    @Getter
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private String password;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private String role;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Setter
+    @Getter
+    @Column(updatable = false)
+    private String createdIp;
+
+    @Setter
+    @Getter
+    @Column(updatable = false)
+    private String createdDevice;
 
     public User() {
     }
@@ -37,35 +62,4 @@ public class User {
         this.publicId = UUID.randomUUID().toString();
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getPublicId() {
-        return publicId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 }
