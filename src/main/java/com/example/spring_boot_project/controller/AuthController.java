@@ -1,5 +1,7 @@
 package com.example.spring_boot_project.controller;
 
+import com.example.spring_boot_project.exceptions.InvalidCredentialsException;
+import com.example.spring_boot_project.exceptions.UsernameAlreadyExistsException;
 import com.example.spring_boot_project.security.JwtUtil;
 import com.example.spring_boot_project.dto.LoginResponse;
 import com.example.spring_boot_project.dto.RegisterRequest;
@@ -48,7 +50,7 @@ public class AuthController {
         Optional<User> existingUser = userService.findByUsername(request.getUsername());
 
         if (existingUser.isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists.");
+            throw new UsernameAlreadyExistsException();
         }
 
         User user = new User();
@@ -112,7 +114,7 @@ public class AuthController {
             );
         }
 
-        return ResponseEntity.status(401).body("Invalid username or password.");
+        throw new InvalidCredentialsException();
     }
 
     @GetMapping("/login")

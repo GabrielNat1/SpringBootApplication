@@ -11,35 +11,49 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(ResourceNotFound.class)
-    public ResponseEntity<Object> handleResourceNotFound(ResourceNotFound ex){
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("Timestamp", LocalDate.now());
-        body.put("Status", HttpStatus.NOT_FOUND.value());
-        body.put("Error", "Resource Not Found");
-        body.put("Message", ex.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<?> handleApiException(ApiException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleGenericException(ResourceNotFound ex){
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("Timestamp", LocalDate.now());
-        body.put("Status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("Error", "Error Internal Server Error");
-        body.put("Message", ex.getMessage());
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
 
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<?> handleUnauthorized(InvalidCredentialsException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(VpnBlockedException.class)
     public ResponseEntity<?> handleVpnBlocked(VpnBlockedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     @ExceptionHandler(VpnChallengeException.class)
     public ResponseEntity<?> handleVpnChallenge(VpnChallengeException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGeneric(Exception ex) {
+        return buildResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal server error"
+        );
+    }
+
+    private ResponseEntity<Map<String, Object>> buildResponse(
+            HttpStatus status, String message
+    ) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDate.now());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
+        body.put("message", message);
+
+        return new ResponseEntity<>(body, status);
     }
 }
