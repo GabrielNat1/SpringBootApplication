@@ -1,4 +1,4 @@
-package com.example.spring_boot_project.Security;
+package com.example.spring_boot_project.security;
 
 import cn.apiclub.captcha.Captcha;
 
@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-public class CaptchaUtil {
+public class CaptchaUtilOld {
     public static Captcha createCaptcha(int width, int height){
         return new Captcha.Builder(width, height)
                 .addText()

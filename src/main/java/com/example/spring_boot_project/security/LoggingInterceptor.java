@@ -1,4 +1,4 @@
-package com.example.spring_boot_project.Security;
+package com.example.spring_boot_project.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

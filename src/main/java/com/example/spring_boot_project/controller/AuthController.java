@@ -1,6 +1,6 @@
 package com.example.spring_boot_project.controller;
 
-import com.example.spring_boot_project.Security.JwtUtil;
+import com.example.spring_boot_project.security.JwtUtil;
 import com.example.spring_boot_project.dto.LoginResponse;
 import com.example.spring_boot_project.dto.RegisterRequest;
 import com.example.spring_boot_project.dto.RegisterResponse;

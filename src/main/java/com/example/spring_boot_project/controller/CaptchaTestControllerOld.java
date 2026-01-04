@@ -1,7 +1,7 @@
 package com.example.spring_boot_project.controller;
 
 import cn.apiclub.captcha.Captcha;
-import com.example.spring_boot_project.Security.CaptchaUtil;
+import com.example.spring_boot_project.security.CaptchaUtilOld;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +10,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/test-captcha")
-public class CaptchaTestController {
+public class CaptchaTestControllerOld {
 
     @GetMapping
     public Map<String, String> getCaptcha(HttpSession session) {
-        Captcha captcha = CaptchaUtil.createCaptcha(200, 50);
+        Captcha captcha = CaptchaUtilOld.createCaptcha(200, 50);
         //System.out.println("--------------" + captcha.getImage());
-        String encoded = CaptchaUtil.encodeCaptcha(captcha);
+        String encoded = CaptchaUtilOld.encodeCaptcha(captcha);
 
         session.setAttribute("captcha", captcha.getAnswer());
 

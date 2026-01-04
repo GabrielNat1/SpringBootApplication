@@ -1,4 +1,4 @@
-package com.example.spring_boot_project.Security;
+package com.example.spring_boot_project.security;
 
 import com.example.spring_boot_project.service.UserService;
 import jakarta.servlet.FilterChain;

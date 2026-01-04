@@ -1,4 +1,4 @@
-package com.example.spring_boot_project.Security;
+package com.example.spring_boot_project.security;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
