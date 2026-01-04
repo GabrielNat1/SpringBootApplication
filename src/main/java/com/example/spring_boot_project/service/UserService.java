@@ -36,7 +36,10 @@ public class UserService implements UserDetailsService {
     }
 
     public User registerUser(String username, String encodedPassword) {
-        User user = new User(username, encodedPassword, "ROLE_USER");
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(encodedPassword);
+        user.setRole("ROLE_USER");
         return userRepository.save(user);
     }
 
