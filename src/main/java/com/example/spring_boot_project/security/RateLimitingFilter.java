@@ -22,10 +22,10 @@ public class RateLimitingFilter implements Filter {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     private Bucket createNewBucket() {
-        // limit to 10 requests per minute
+        // limit to 10 requests per 30 seconds
         Bandwidth limit = Bandwidth.builder()
                 .capacity(10)
-                .refillIntervally(10, Duration.ofMinutes(1))
+                .refillIntervally(10, Duration.ofSeconds(30))
                 .build();
         return Bucket.builder()
                 .addLimit(limit)

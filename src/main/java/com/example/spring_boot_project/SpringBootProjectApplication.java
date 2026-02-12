@@ -1,5 +1,6 @@
 package com.example.spring_boot_project;
 
+import com.example.spring_boot_project.config.AdminInitializerDev;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;

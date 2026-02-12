@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/captcha")
+@RequestMapping("/api/v2/captcha")
 public class CaptchaController {
     private final CaptchaService captchaService;
 
