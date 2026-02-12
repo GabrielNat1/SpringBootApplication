@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v2/auth")
 public class AuthController {
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;

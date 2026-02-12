@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/cart")
+@RequestMapping("api/v2/cart")
 public class CartController {
 
     @Autowired
