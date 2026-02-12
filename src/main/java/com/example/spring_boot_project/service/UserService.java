@@ -1,11 +1,15 @@
 package com.example.spring_boot_project.service;
 
+import com.example.spring_boot_project.exceptions.EmailAlreadyExistsException;
+import com.example.spring_boot_project.exceptions.UsernameAlreadyExistsException;
 import com.example.spring_boot_project.model.User;
 import com.example.spring_boot_project.repository.UserRepository;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,9 +18,11 @@ import java.util.Optional;
 @Primary
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -35,12 +41,32 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
-    public User registerUser(String username, String encodedPassword) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(encodedPassword);
-        user.setRole("ROLE_USER");
-        return userRepository.save(user);
+    public User registerUser(String username,
+                             String rawPassword,
+                             String email,
+                             String telephone,
+                             String ipAddress,
+                             String userAgent) {
+        if (userRepository.existsByUsername(username)) {
+            throw new UsernameAlreadyExistsException();
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
+        try{
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(rawPassword));
+            user.setEmail(email);
+            user.setTelephone(telephone);
+            user.setRole("ROLE_USER");
+
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException ex){
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
     }
 
     public User save(User user) {

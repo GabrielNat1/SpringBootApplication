@@ -45,30 +45,25 @@ public class AuthController {
      *         or an error message if the username already exists.
      */
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request,
-                                          HttpServletRequest httpRequest) {
-        Optional<User> existingUser = userService.findByUsername(request.getUsername());
+    public ResponseEntity<RegisterResponse> registerUser(
+            @RequestBody RegisterRequest request,
+            HttpServletRequest httpRequest) {
 
-        if (existingUser.isPresent()) {
-            throw new UsernameAlreadyExistsException();
-        }
-
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole("USER");
-
-        // IP
         String ipAddress = httpRequest.getRemoteAddr();
-        user.setCreatedIp(ipAddress);
-
-        // (User-Agent)
         String userAgent = httpRequest.getHeader("User-Agent");
-        user.setCreatedDevice(userAgent);
 
-        User savedUser = userService.save(user);
 
-        return ResponseEntity.ok(
+        User savedUser = userService.registerUser(
+                request.getUsername(),
+                request.getPassword(),
+                request.getEmail(),
+                request.getTelephone(),
+                ipAddress,
+                userAgent
+        );
+
+
+        return ResponseEntity.status(201).body(
                 new RegisterResponse(
                         savedUser.getPublicId(),
                         savedUser.getUsername()
@@ -96,6 +91,11 @@ public class AuthController {
         String rawPassword = request.get("password");
 
         Optional<User> userOptional = userService.findByUsername(username);
+//        if (userOptional.isPresent()) {
+//            System.out.println("RAW: " + rawPassword);
+//            System.out.println("ENCODED FROM DB: " + userOptional.get().getPassword());
+//        }
+
         if (userOptional.isPresent() &&
                 passwordEncoder.matches(rawPassword, userOptional.get().getPassword())) {
 
@@ -106,6 +106,8 @@ public class AuthController {
                     new LoginResponse(
                             user.getPublicId(),
                             user.getUsername(),
+                            user.getEmail(),
+                            user.getTelephone(),
                             token,
                             user.getCreatedIp(),
                             user.getCreatedDevice(),
