@@ -35,7 +35,10 @@ This application was built to explore and learn key concepts in the Spring ecosy
 
 ---
 
-## 📚 Documentation V1
+<details>
+<summary> <h1> <strong> 📚 Documentation V1 </strong> </summary>
+
+---
 
 All documentation is organized by topic for easy navigation:
 
@@ -127,6 +130,18 @@ All documentation is organized by topic for easy navigation:
 - ⚙️ [health-checks.md](docs/operations/health-checks.md) — Health Checks  
 - ⚙️ [troubleshooting.md](docs/operations/troubleshooting.md) — Troubleshooting  
 - ⚙️ [ci-cd.md](docs/operations/ci-cd.md) — CI/CD  
+</details>
+
+---
+
+<details>
+<summary> <h1> <strong> 📚 Documentation V2 </strong> </summary>
+
+---
+
+> <strong>future documentation v2
+
+</details>
 
 ---
 
