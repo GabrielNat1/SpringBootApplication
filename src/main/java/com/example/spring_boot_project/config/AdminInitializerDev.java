@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AdminInitializerDev implements CommandLineRunner {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -18,26 +19,26 @@ public class AdminInitializerDev implements CommandLineRunner {
     @Override
     public void run(String... args) {
         String tempAdminUsername = System.getenv("ADMIN_USERNAME");
-        if (tempAdminUsername == null){
+        if (tempAdminUsername == null) {
             tempAdminUsername = System.getProperty("ADMIN_USERNAME");
         }
 
         String tempAdminPassword = System.getenv("ADMIN_PASSWORD");
-        if (tempAdminPassword == null){
-            tempAdminPassword = System.getProperty("ADMIN_USERNAME");
+        if (tempAdminPassword == null) {
+            // fixed for admin password
+            tempAdminPassword = System.getProperty("ADMIN_PASSWORD");
         }
 
         if (tempAdminUsername == null || tempAdminPassword == null) {
-            System.err.println(" ADMIN_USERNAME and ADMIN_PASSWORD are not set. Admin will not be created.");
+            System.err.println("ADMIN_USERNAME and ADMIN_PASSWORD are not set. Admin will not be created.");
             return;
         }
 
-        // password and username
         final String adminUsername = tempAdminUsername;
         final String adminPassword = tempAdminPassword;
 
         userRepository.findByUsername(adminUsername).ifPresentOrElse(
-                user -> System.out.println(),
+                user -> System.out.println("Admin user already exists."),
                 () -> {
                     User admin = new User();
                     admin.setUsername(adminUsername);
@@ -48,6 +49,5 @@ public class AdminInitializerDev implements CommandLineRunner {
                     System.out.println("--------\n admin created \n-------------");
                 }
         );
-
     }
 }
